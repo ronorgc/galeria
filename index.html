@@ -46,37 +46,48 @@
     </div>
 
     <script>
-        // Lista de imágenes (debes incluir la ruta completa a cada imagen)
-        const imagenes = [
-            'imagenes/subcarpeta1/imagen1.jpg',
-            'imagenes/subcarpeta1/imagen2.jpg',
-            'imagenes/subcarpeta2/imagen3.jpg',
-            'imagenes/imagen4.jpg'
-        ];
+        // Función para cargar las imágenes desde el archivo JSON
+        fetch('index.json')
+            .then(response => response.json())
+            .then(data => {
+                // Función recursiva para mostrar las imágenes y carpetas
+                function mostrarImagenes(archivos, contenedor) {
+                    archivos.forEach(archivo => {
+                        if (archivo.tipo === 'carpeta') {
+                            // Si es una carpeta, crear un contenedor para esa carpeta
+                            const divCarpeta = document.createElement('div');
+                            divCarpeta.classList.add('carpeta');
+                            divCarpeta.innerHTML = `<h2>${archivo.nombre}</h2>`;
+                            contenedor.appendChild(divCarpeta);
+                            // Llamar a la función recursiva para cargar las imágenes de la subcarpeta
+                            mostrarImagenes(archivo.contenido, divCarpeta);
+                        } else if (archivo.tipo === 'imagen') {
+                            // Si es una imagen, mostrarla
+                            const divFoto = document.createElement('div');
+                            divFoto.classList.add('foto');
 
-        const galeria = document.getElementById('galeria');
+                            const img = document.createElement('img');
+                            img.src = archivo.ruta;
+                            img.alt = archivo.nombre;
 
-        // Crear la galería de fotos
-        imagenes.forEach(imagen => {
-            const divFoto = document.createElement('div');
-            divFoto.classList.add('foto');
+                            const botonDescarga = document.createElement('a');
+                            botonDescarga.href = archivo.ruta;
+                            botonDescarga.classList.add('descargar');
+                            botonDescarga.textContent = 'Descargar';
+                            botonDescarga.setAttribute('download', archivo.ruta);
 
-            const img = document.createElement('img');
-            img.src = imagen;
-            img.alt = 'Imagen de la galería';
+                            divFoto.appendChild(img);
+                            divFoto.appendChild(botonDescarga);
+                            contenedor.appendChild(divFoto);
+                        }
+                    });
+                }
 
-            const botonDescarga = document.createElement('a');
-            botonDescarga.href = imagen;
-            botonDescarga.classList.add('descargar');
-            botonDescarga.textContent = 'Descargar';
-            botonDescarga.setAttribute('download', imagen);
-
-            divFoto.appendChild(img);
-            divFoto.appendChild(botonDescarga);
-            galeria.appendChild(divFoto);
-        });
+                // Llamar a la función de visualización con los datos obtenidos del archivo JSON
+                mostrarImagenes(data, document.getElementById('galeria'));
+            })
+            .catch(error => console.error('Error al cargar las imágenes:', error));
     </script>
 
 </body>
 </html>
-
