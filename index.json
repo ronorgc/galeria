@@ -1,0 +1,42 @@
+<?php
+
+function obtenerImagenes($dir) {
+    $imagenes = [];
+    $archivos = scandir($dir);
+    
+    foreach ($archivos as $archivo) {
+        if ($archivo == '.' || $archivo == '..') continue;
+        
+        $rutaArchivo = $dir . '/' . $archivo;
+        
+        if (is_dir($rutaArchivo)) {
+            $imagenes[] = [
+                'nombre' => $archivo,
+                'tipo' => 'carpeta',
+                'contenido' => obtenerImagenes($rutaArchivo) // Recursión para subcarpetas
+            ];
+        } else {
+            if (preg_match('/\.(jpg|jpeg|png|gif)$/i', $archivo)) {
+                $imagenes[] = [
+                    'nombre' => $archivo,
+                    'tipo' => 'imagen',
+                    'ruta' => $rutaArchivo
+                ];
+            }
+        }
+    }
+    
+    return $imagenes;
+}
+
+// Ruta de la carpeta principal
+$directorio = 'imagenes';
+
+// Obtener las imágenes y carpetas
+$imagenes = obtenerImagenes($directorio);
+
+// Guardar el resultado en un archivo JSON
+file_put_contents('index.json', json_encode($imagenes, JSON_PRETTY_PRINT));
+
+echo "index.json generado exitosamente.";
+?>
